@@ -1,0 +1,31 @@
+dobro x = x*2
+quadriplicar x = (dobro x) * 2
+hipotenusa x y = sqrt (x^2 + y^2)
+distDoisPontos x1 y1 x2 y2 = sqrt ((x2 - x1)^2 + (y2 - y1)^2)
+
+main = do
+  print(1 + 2 * 3)
+  print(5 ^ 3)
+  print(5 ** 3)
+  print(5 / 3)
+  print(div 5 3)
+  print(mod 5 3)
+  print(5 < 3)
+  print(mod 5 3 < 2)
+  print(mod 5 3 == 2)
+  print(sqrt 81)
+  print(logBase 2 1024)
+  print(floor 5.7)
+  print(ceiling 5.7)
+  print(abs (-5))
+  print(min 6 7)
+  print(max 6 7)
+  print(sin (pi/2))
+  print(sum [1..5])
+  print(not True)
+  print(True && False)
+
+  print(dobro 4)
+  print(quadriplicar 4)
+  print(hipotenusa 3 4)
+  print(distDoisPontos 1 4 1 1)
