@@ -179,3 +179,41 @@ buscarContato :: String -> String
 buscarContato email = buscarAux email agenda
 
 -- 15
+
+type Pessoa = (String, Float, Int, Char)
+pessoas :: [Pessoa]
+pessoas = [
+    ("Rosa",1.66, 27,'F'),
+    ("João", 1.85, 26, 'C'),
+    ("Maria", 1.55, 62, 'S'),
+    ("Jose", 1.78, 42, 'C'),
+    ("Paulo", 1.93, 25, 'S'),
+    ("Clara", 1.70, 33, 'C'),
+    ("Bob", 1.45, 21, 'C'),
+    ("Rosana", 1.58,39, 'S'),
+    ("Daniel", 1.74, 72, 'S'),
+    ("Jocileide", 1.69, 18, 'S')
+  ]
+
+-- A altura média entre todas as pessoas
+extractAltura :: Pessoa -> Float
+extractAltura (_, altura, _, _) = altura
+
+alturaTotal :: [Pessoa] -> Float
+alturaTotal pessoas
+  | pessoas == [] = 0.0
+  | otherwise = extractAltura (head pessoas) + alturaTotal (tail pessoas)
+
+alturaMedia :: Float
+alturaMedia = (alturaTotal pessoas) / fromIntegral(length pessoas)
+
+--  A idade da pessoa mais nova.
+extractIdade :: Pessoa -> Int
+extractIdade (_, _, idade, _) = idade
+
+listaIdades :: [Pessoa] -> [Int]
+listaIdades [] = []
+listaIdades (ph:pt) = (extractIdade ph):(listaIdades pt)
+
+idadePessoaNova :: Int
+idadePessoaNova = minimum (listaIdades pessoas)
