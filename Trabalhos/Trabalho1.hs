@@ -133,4 +133,49 @@ conta_ocorrencias :: Integer -> Integer -> [Integer] -> (Integer, Integer)
 conta_ocorrencias n1 n2 lista = conta_aux n1 n2 0 0 lista
 
 -- 12
+myFilter :: Integer -> [Integer] -> Integer
+myFilter _ [] = 0
+myFilter x (h:t)
+  | x == h = 1 + (myFilter x t)
+  | otherwise = 0 + (myFilter x t)
+
+
 unica_ocorrencia :: Integer -> [Integer] -> Bool
+unica_ocorrencia x l = (myFilter x l) == 1
+
+-- 13
+intercala :: [Integer] -> [Integer] -> [Integer]
+intercala [] [] = []
+intercala a [] = a
+intercala [] b = b
+intercala (a : at) (b : bt) = a : b : intercala at bt
+
+-- 14
+type Contato = (String, String, String, String)
+
+agenda :: [Contato]
+agenda =  [
+    ("Teste1", "Rua a", "38999884971", "aristeuneto13@gmail.com"),
+    ("Teste2", "Rua b", "38999884972", "aristeuneto14@gmail.com"),
+    ("Teste3", "Rua c", "38999884973", "aristeuneto15@gmail.com")
+  ]
+
+checarEmail :: String -> Contato -> Bool
+checarEmail email (nome, _, _, email1)
+  | email == email1 = True
+  | otherwise = False
+
+extractNome :: Contato -> String
+extractNome (nome, _, _, _) = nome
+
+buscarAux :: String -> [Contato] -> String
+buscarAux email contatos
+  | contatos == [] = "Email desconhecido"
+  | checarEmail email (head contatos) = extractNome (head contatos)
+  | otherwise = buscarAux email (tail contatos)
+
+
+buscarContato :: String -> String
+buscarContato email = buscarAux email agenda
+
+-- 15
