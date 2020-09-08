@@ -79,8 +79,9 @@ prodTotal [] = 1
 prodTotal (num:tailNums) = num*prodTotal(tailNums)
 
 -- 10
-comprime :: Ord a => [[a]] -> [a]
-comprime lista = [ x | sub <- lista, x <- sub]
+comprime :: [[Int]] -> [Int]
+comprime [] = []
+comprime (hl:tl) = hl ++ comprime tl
 
 -- 11
 tamanho :: [a] -> Int
