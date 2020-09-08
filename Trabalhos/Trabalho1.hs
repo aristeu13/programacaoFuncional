@@ -217,3 +217,69 @@ listaIdades (ph:pt) = (extractIdade ph):(listaIdades pt)
 
 idadePessoaNova :: Int
 idadePessoaNova = minimum (listaIdades pessoas)
+
+-- O nome e o estado civil da pessoa mais velha
+
+idadePessoaVelha :: Int
+idadePessoaVelha = maximum (listaIdades pessoas)
+
+buscarInfoMaisVelhoAux :: [Pessoa] -> Int -> (String, Char)
+buscarInfoMaisVelhoAux [] _ = (" ",' ')
+buscarInfoMaisVelhoAux ((nome, _, idade, estado):ptail) age
+  | age == idade = (nome, estado)
+  | otherwise = buscarInfoMaisVelhoAux ptail age
+
+buscarInfoMaisVelho :: (String, Char)
+buscarInfoMaisVelho = buscarInfoMaisVelhoAux pessoas idadePessoaVelha
+
+-- Todos os dados de cada pessoa com 50 anos ou mais
+
+pessoasAcima50 :: [Pessoa]
+pessoasAcima50 = [ (nome, altura, idade, estado) | (nome, altura, idade, estado)<-pessoas, idade >= 50]
+
+
+-- O número de pessoas casadas com idade superior a i (ex: i = 35).
+
+pessoasCasadasSupI :: Int -> Int
+pessoasCasadasSupI i = length [ (nome, altura, idade, estado) | (nome, altura, idade, estado)<-pessoas, estado == 'C', idade > i]
+
+-- 16
+insere_ord :: Ord a => a -> [a] -> [a]
+insere_ord x [] = x:[]
+insere_ord x (hl:tl)
+  | (x > hl) == False = x:hl:tl
+  | otherwise = hl:(insere_ord x tl)
+
+-- 17
+reverteAux :: Ord a => [a] -> [a] -> [a]
+reverteAux [] l2 = l2
+reverteAux (h1:t1) l2 = reverteAux t1 (h1:l2)
+
+reverte :: Ord a => [a] -> [a]
+reverte lista = reverteAux lista []
+
+-- 18
+
+checaRepeticao :: Ord a => a -> [a] -> Bool
+checaRepeticao elem [] = False
+checaRepeticao elem (hl:tl)
+  | elem == hl = True
+  | otherwise = checaRepeticao elem tl
+
+
+semRepetidosAux :: Ord a => [a] -> [a] -> [a]
+semRepetidosAux [] lista2 = reverte lista2
+semRepetidosAux (h1:t1) lista2
+  | checaRepeticao h1 lista2 == False = semRepetidosAux t1 (h1:lista2)
+  | otherwise = semRepetidosAux t1 lista2
+
+sem_repetidos :: Ord a => [a] -> [a]
+sem_repetidos lista = semRepetidosAux lista []
+
+-- 19
+disponiveis :: [Int]
+disponiveis = [1,2,5,10,20,50,100]
+
+notasTroco :: Int -> [[Int]]
+notasTroco 0 = [[]]
+notasTroco nota = [ hl:tl | hl <- disponiveis, hl <= nota, tl <- notasTroco (nota - hl)]
