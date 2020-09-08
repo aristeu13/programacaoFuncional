@@ -79,6 +79,7 @@ prodTotal [] = 1
 prodTotal (num:tailNums) = num*prodTotal(tailNums)
 
 -- 10
+-- todo usar recursão
 comprime :: Ord a => [[a]] -> [a]
 comprime lista = [ x | sub <- lista, x <- sub]
 
