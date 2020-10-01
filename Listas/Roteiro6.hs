@@ -91,16 +91,62 @@ quicksort [] = []
 quicksort (s:xs) = quicksort [x|x <- xs, x < s] ++ [s] ++ quicksort [x|x <- xs, x >= s]
 
 -- 11
--- bolha2 :: Ord a => [a] -> [a]
--- bolha2 [] = []
--- bolha2 lst = bolhaOrd2 lst (length lst)
+bolha2 :: Ord a => [a] -> ([a], Int)
+bolha2 [] = ([], 0)
+bolha2 lst = bolhaOrd2 (lst, 0) (length lst)
 
--- bolhaOrd2 :: Ord a => [a] -> Int -> [a]
--- bolhaOrd2 lst 0 = lst
--- bolhaOrd2 lst n = bolhaOrd2 (troca2 lst) (n-1)
+bolhaOrd2 :: Ord a => ([a], Int) -> Int -> ([a], Int)
+bolhaOrd2 (lst, c) 0 = (lst, c)
+bolhaOrd2 (lst, c) n = bolhaOrd2 (troca2 (lst, c)) (n-1)
 
-troca2 :: Ord a => [a] -> [a]
-troca2 [x] = [x]
-troca2 (x:y:zs)
-  | x > y     = y : troca2 (x:zs)
-  | otherwise = x : troca2 (y:zs)
+troca2 :: Ord a => ([a], Int) -> ([a], Int)
+troca2 ([x], n) = ([x], n)
+troca2 ((x:y:zs), n) = if x > y then
+  addInitList (troca2 ((x:zs), n+1)) y else
+  addInitList (troca2 ((y:zs), n+1)) x
+    where
+      addInitList (list, n) a = (a:list, n)
+
+
+selecao2 :: Ord a => [a] -> ([a], Int)
+selecao2 lista = selecaoAux lista 0
+
+selecaoAux :: (Ord a) => [a] -> Int -> ([a], Int)
+selecaoAux [] n = ([], n)
+selecaoAux (x : xs) n =
+  let (least, n_num) = minimo2 (x : xs) n
+
+      remove2 _ [] = []
+      remove2 n (h : t) =
+        if (n == h)
+          then t
+          else h : (remove2 n t)
+
+      add (lst, n) y = (y : lst, n)
+   in add (selecaoAux (remove2 least (x : xs)) n_num) least
+
+minimo2 :: (Ord a) => [a] -> Int -> (a, Int)
+minimo2 [] _ = undefined
+minimo2 [x] cont = (x, cont)
+minimo2 (x : y : xs) cont
+  | x > y = minimo2 (y : xs) (cont + 1)
+  | otherwise = minimo2 (x : xs) (cont + 1)
+
+
+insercao2 :: (Ord a) => [a] -> ([a], Int)
+insercao2 [] = ([], 0)
+insercao2 [x] = ([x], 0)
+insercao2 (h : t) =
+  let (sorted_tail, n) = insercao2 t
+
+      (lst, n1) = insereOrd2 h sorted_tail n
+   in (lst, n1)
+
+insereOrd2 :: (Ord a) => a -> [a] -> Int -> ([a], Int)
+insereOrd2 x [] n = ([x], n)
+insereOrd2 x (h : t) n =
+  if (x <= h)
+    then ((x : h : t), n + 1)
+    else add (insereOrd2 x t (n + 1)) h
+  where
+    add (list, n) y = (y : list, n)
