@@ -129,3 +129,51 @@ main = do
     print(bolhaVar2 l2)
     print(bolhaVar3 l2)
 
+-- 3
+-- variacao1
+selecaoVar1 :: Ord a => [a] -> [a]
+selecaoVar1 [] = []
+selecaoVar1 xs = x:(selecao (remove1 x xs))
+  where x = minimo1 xs
+
+remove1 :: Ord a => a -> [a] -> [a]
+remove1 _ [] = []
+remove1 a (x:xs)
+  | a==x = xs
+  | otherwise = x:(remove a xs)
+
+minimo1 :: Ord a => [a] -> a
+minimo1 [] = undefined
+minimo1 [x] = x
+minimo1 (x:xs)
+  | x <= (minimo1 xs) = x
+  | otherwise = minimo1 xs
+
+-- variacao2
+selecaoVar2 :: Ord a => [a] -> [a]
+selecaoVar2 [] = []
+selecaoVar2 [x] = [x]
+selecaoVar2 (x:xs) = e:(selecaoVar2 lst)
+  where (e, lst) = remove_menor (x, xs)
+
+remove_menor :: (Ord a) => (a, [a]) -> (a, [a])
+remove_menor (m, [x]) = if x < m then (x, [m]) else (m, [x])
+remove_menor (menor, (x : xs))
+  | x < menor = add menor (remove_menor (x, xs))
+  | otherwise = add x (remove_menor (menor, xs))
+  where
+    add a (n, l) = (n, a : l)
+
+-- variacao3
+selecaoVar3 :: Ord a => [a] -> [a]
+selecaoVar3 [] = []
+selecaoVar3 (x:xs) = e:(selecaoVar3 lst)
+  where (e, lst) = remove_menor3 (x, xs)
+
+remove_menor3 :: (Ord a) => (a, [a]) -> (a, [a])
+remove_menor3 (m, [x]) = if x < m then (x, [m]) else (m, [x])
+remove_menor3 (menor, (x:xs))
+    | x < menor = add menor (remove_menor3 (x, xs))
+    | otherwise = add x (remove_menor3 (menor, xs))
+    where
+        add a (n, l) = (n, a:l)
