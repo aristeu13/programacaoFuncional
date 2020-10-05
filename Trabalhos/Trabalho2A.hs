@@ -165,15 +165,99 @@ remove_menor (menor, (x : xs))
     add a (n, l) = (n, a : l)
 
 -- variacao3
-selecaoVar3 :: Ord a => [a] -> [a]
-selecaoVar3 [] = []
-selecaoVar3 (x:xs) = e:(selecaoVar3 lst)
-  where (e, lst) = remove_menor3 (x, xs)
+selecaoVar3 :: (Ord a) => [a] -> ([a], Int)
+selecaoVar3 [] = ([], 0)
+selecaoVar3 [x] = ([x], 0)
+selecaoVar3 (x : xs) =
+  let (least, novoUlt, cont) = remove_menor3 (x, xs, 0)
 
-remove_menor3 :: (Ord a) => (a, [a]) -> (a, [a])
-remove_menor3 (m, [x]) = if x < m then (x, [m]) else (m, [x])
-remove_menor3 (menor, (x:xs))
-    | x < menor = add menor (remove_menor3 (x, xs))
-    | otherwise = add x (remove_menor3 (menor, xs))
-    where
-        add a (n, l) = (n, a:l)
+      (proxima_etapa, nCont) = selecaoVar3 novoUlt
+   in (least : proxima_etapa, cont + nCont)
+
+remove_menor3 :: (Ord a) => (a, [a], Int) -> (a, [a], Int)
+remove_menor3 (m, [x], c) = if x < m then (x, [m], c + 1) else (m, [x], c + 1)
+remove_menor3 (menor, (x : xs), c1)
+  | x < menor = add menor (remove_menor3 (x, xs, c1 + 1))
+  | otherwise = add x (remove_menor3 (menor, xs, c1 + 1))
+  where
+    add a (n, l, c) = (n, a : l, c)
+
+-- 4
+-- variacao1
+
+divide :: (Ord a) => a -> [a] -> ([a], [a])
+divide _ [] = ([], [])
+divide x [e] = if e < x then ([e], []) else ([], [e])
+divide x (e : es)
+  | e < x = addEsq e (divide x es)
+  | otherwise = addDir e (divide x es)
+  where
+    addEsq a (l, r) = (a : l, r)
+    addDir a (l, r) = (l, a : r)
+
+quickSortVar1 :: (Ord a) => [a] -> [a]
+quickSortVar1 [] = []
+quickSortVar1 (piv : xs) =
+  let (left, right) = divide piv xs
+   in (quickSortVar1 left) ++ [piv] ++ (quickSortVar1 right)
+
+-- variacao2
+quickSortVar2 :: (Ord a) => [a] -> [a]
+quickSortVar2 [] = []
+quickSortVar2 lst =
+  let firstThree = take 3 lst
+      piv =
+        if length (firstThree) < 3
+          then firstThree !! 0
+          else foldr1 (min) (firstThree)
+
+      deletaPrimOcorrencia _ [] = []
+      deletaPrimOcorrencia x (y : ys)
+        | x == y = ys
+        | otherwise = y : deletaPrimOcorrencia x ys
+
+      (left, right) = divide piv (deletaPrimOcorrencia piv lst)
+   in (quickSortVar2 left) ++ [piv] ++ (quickSortVar2 right)
+
+-- variacao3 contagem
+divideCont :: (Ord a) => a -> [a] -> Int -> ([a], [a], Int)
+divideCont _ [] n = ([], [], n)
+divideCont x [e] n =
+  if e < x
+    then ([e], [], n + 1)
+    else ([], [e], n + 1)
+divideCont x (e : es) n
+  | e < x = addEsq e (divideCont x es (n + 1))
+  | otherwise = addDir e (divideCont x es (n + 1))
+  where
+    addEsq a (l, r, c) = (a : l, r, c)
+    addDir a (l, r, c) = (l, a : r, c)
+
+quickSortVar3 :: (Ord a) => [a] -> ([a], Int)
+quickSortVar3 [] = ([], 0)
+quickSortVar3 (piv : xs) =
+  let (left, right, n) = divideCont piv xs 0
+
+      (sortedL, n_L) = quickSortVar3 left
+      (sortedR, n_R) = quickSortVar3 right
+   in (sortedL ++ [piv] ++ sortedR, n + n_L + n_R)
+
+quickSortVar4 :: (Ord a) => [a] -> ([a], Int)
+quickSortVar4 [] = ([], 0)
+quickSortVar4 lst =
+  let piv = foldr1 (min) (take 3 lst)
+
+      deleteFrstOc :: (Ord a) => a -> [a] -> Int -> ([a], Int)
+      deleteFrstOc _ [] n = ([], n)
+      deleteFrstOc x (y : ys) n
+        | x == y = (ys, n + 1)
+        | otherwise = add y (deleteFrstOc x ys (n + 1))
+        where
+          add e (l, c) = (e : l, c)
+
+      (novoUlt, checks) = deleteFrstOc piv lst 0
+
+      (left, right, n1) = divideCont piv novoUlt 0
+      (sortedL, n_L) = quickSortVar4 left
+      (sortedR, n_R) = quickSortVar4 right
+   in (sortedL ++ [piv] ++ sortedR, n1 + n_L + n_R + checks + 3)
