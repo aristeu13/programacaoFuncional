@@ -60,7 +60,7 @@ minimo a b
   | a > b = b
   | otherwise = a
 
--- b -- 
+-- b --
 insercao :: Ord a => [a] -> [a]
 insercao = foldr insereOrd []
 
@@ -95,7 +95,7 @@ troca1 ([x], n) = ([x], n)
 troca1 ((x : y : zs), n) =
   if x > y
     then addInitList (troca1 ((x : zs), n + 1)) y
-    else addInitList (troca1 ((y : zs), n)) x
+    else addInitList (troca1 ((y : zs), n + 1)) x
   where
     addInitList (list, n) a = (a : list, n)
 
@@ -108,6 +108,7 @@ bolhaVar2Ord :: Ord a => [a] -> Int -> [a]
 bolhaVar2Ord lst 0 = lst
 bolhaVar2Ord lst n = bolhaVar2Ord (troca2 lst) (n -1)
 
+bolhaOrd :: Ord a => [a] -> [a]
 bolhaOrd [x] = [x]
 bolhaOrd l = (bolhaOrd body) ++ last
   where
@@ -149,10 +150,81 @@ troca3 ([x], n) = ([x], n)
 troca3 ((x : y : zs), n) =
   if x > y
     then addInitList (troca3 ((x : zs), n + 1)) y
-    else addInitList (troca3 ((y : zs), n)) x
+    else addInitList (troca3 ((y : zs), n + 1)) x
   where
     addInitList (list, n) a = (a : list, n)
 
+-- cont --
+-- variacao 1 --
+bolha1Cont :: (Ord a) => [a] -> ([a], Int)
+bolha1Cont [] = ([], 0)
+bolha1Cont list = format (bolhaAuxCont (list, -1, 0) (length list))
+  where
+    format (l, _, c) = (l, c)
+
+trocaCont :: (Ord a) => ([a], Int, Int) -> ([a], Int, Int)
+trocaCont ([x], flag, n) = ([x], flag, n)
+trocaCont ((x : y : xs), flag, n) =
+  if x > y
+    then add (trocaCont ((x : xs), 1, n + 1)) y
+    else add (trocaCont ((y : xs), flag, n + 1)) x
+  where
+    add (l, f, c) e = (e : l, f, c)
+
+bolhaAuxCont :: (Ord a) => ([a], Int, Int) -> Int -> ([a], Int, Int)
+bolhaAuxCont (l, flag, c) 0 = (l, flag, c)
+bolhaAuxCont (l, flag, c) n
+  | flag == 0 = (l, flag, c)
+  | otherwise = bolhaAuxCont (trocaCont (l, 0, c)) (n -1)
+
+-- variacao 2 --
+bolha2Cont :: (Ord a) => [a] -> ([a], Int)
+bolha2Cont [] = ([], 0)
+bolha2Cont lst =
+  let add (l, c) e = (e : l, c)
+
+      troca ([x], c) = ([x], c)
+      troca ((x : y : xs), c) =
+        if x > y
+          then add (troca (x : xs, c + 1)) y
+          else add (troca (y : xs, c + 1)) x
+
+      split lst = (take (length lst - 1) lst, drop (length lst - 1) lst)
+
+      bolha :: (Ord a) => ([a], Int) -> ([a], Int)
+      bolha ([x], c) = ([x], c)
+      bolha (l, c) = (proxEtapa ++ ultElem, rec_c)
+        where
+          (listaTrocada, c1) = (troca (l, c))
+          (paraTrocar, ultElem) = split listaTrocada
+          (proxEtapa, rec_c) = bolha (paraTrocar, c1)
+   in bolha (lst, 0)
+
+-- variacao 3 --
+bolha3Cont :: (Ord a) => [a] -> ([a], Int)
+bolha3Cont [] = ([], 0)
+bolha3Cont l =
+  let add (l, f, c) y = (y : l, f, c)
+      split lst = (take (length lst - 1) lst, drop (length lst - 1) lst)
+      format (l, _, c) = (l, c)
+
+      troca ([x], flag, c) = ([x], flag, c)
+      troca ((x : y : xs), flag, c) =
+        if x > y
+          then add (troca ((x : xs), 1, c + 1)) y
+          else add (troca ((y : xs), flag, c + 1)) x
+
+      bolha ([x], flag, c) = ([x], flag, c)
+      bolha (lst, flag, c)
+        | n_flag == 0 = (lst, flag, c)
+        | otherwise = (proxEtapa ++ ultElem, 0, rec_c)
+        where
+          (listaTrocada, n_flag, c1) = troca (lst, flag, c)
+          (paraTrocar, ultElem) = split listaTrocada
+          (proxEtapa, _, rec_c) = bolha (paraTrocar, 0, c1)
+   in format (bolha (l, -1, 0))
+
+main :: IO ()
 main = do
   print (bolhaVar1 l1)
   print (bolhaVar2 l1)
@@ -198,26 +270,26 @@ remove_menor (menor, (x : xs))
   where
     add a (n, l) = (n, a : l)
 
--- variacao 3 --
-selecaoVar3 :: (Ord a) => [a] -> ([a], Int)
-selecaoVar3 [] = ([], 0)
-selecaoVar3 [x] = ([x], 0)
-selecaoVar3 (x : xs) =
-  let (least, novoUlt, cont) = remove_menor3 (x, xs, 0)
+-- cont --
+selecaoVarCont :: (Ord a) => [a] -> ([a], Int)
+selecaoVarCont [] = ([], 0)
+selecaoVarCont [x] = ([x], 0)
+selecaoVarCont (x : xs) =
+  let (least, novoUlt, cont) = remove_menorCont (x, xs, 0)
 
-      (proxima_etapa, nCont) = selecaoVar3 novoUlt
+      (proxima_etapa, nCont) = selecaoVarCont novoUlt
    in (least : proxima_etapa, cont + nCont)
 
-remove_menor3 :: (Ord a) => (a, [a], Int) -> (a, [a], Int)
-remove_menor3 (m, [x], c) = if x < m then (x, [m], c + 1) else (m, [x], c + 1)
-remove_menor3 (menor, (x : xs), c1)
-  | x < menor = add menor (remove_menor3 (x, xs, c1 + 1))
-  | otherwise = add x (remove_menor3 (menor, xs, c1 + 1))
+remove_menorCont :: (Ord a) => (a, [a], Int) -> (a, [a], Int)
+remove_menorCont (m, [x], c) = if x < m then (x, [m], c + 1) else (m, [x], c + 1)
+remove_menorCont (menor, (x : xs), c1)
+  | x < menor = add menor (remove_menorCont (x, xs, c1 + 1))
+  | otherwise = add x (remove_menorCont (menor, xs, c1 + 1))
   where
     add a (n, l, c) = (n, a : l, c)
 
--- 4
--- variacao1
+-- 4 --
+-- variacao 1 --
 
 divide :: (Ord a) => a -> [a] -> ([a], [a])
 divide _ [] = ([], [])
@@ -253,7 +325,7 @@ quickSortVar2 lst =
       (left, right) = divide piv (deletaPrimOcorrencia piv lst)
    in (quickSortVar2 left) ++ [piv] ++ (quickSortVar2 right)
 
--- variacao 3 -- contagem
+-- cont -- 
 divideCont :: (Ord a) => a -> [a] -> Int -> ([a], [a], Int)
 divideCont _ [] n = ([], [], n)
 divideCont x [e] n =
@@ -295,3 +367,43 @@ quickSortVar4 lst =
       (sortedL, n_L) = quickSortVar4 left
       (sortedR, n_R) = quickSortVar4 right
    in (sortedL ++ [piv] ++ sortedR, n1 + n_L + n_R + checks + 3)
+
+
+-- Ex5 --
+merge :: (Ord a) => [a] -> [a] -> [a]
+merge [] [] = []
+merge l1 [] = l1
+merge [] l2 = l2
+merge (a : as) (b : bs)
+  | a > b = b : (merge (a : as) bs)
+  | otherwise = a : (merge as (b : bs))
+
+mergeSort :: (Ord a) => [a] -> [a]
+mergeSort [] = []
+mergeSort [x] = [x]
+mergeSort lst =
+  let left = mergeSort (take ((length lst) `div` 2) lst)
+      right = mergeSort (drop ((length lst) `div` 2) lst)
+   in merge left right
+
+-- Bucket Sort
+sortIntoBuckets :: Int -> Int -> Int -> Int -> [[Int]] -> [[Int]]
+sortIntoBuckets num k m n [bucket] =
+  if ((num * k) `div` m) <= n
+    then [num : bucket]
+    else [bucket]
+sortIntoBuckets num k m n (bucket : buckets)
+  | ((num * k) `div` m) <= n = (num : bucket) : buckets
+  | otherwise = bucket : (sortIntoBuckets num k m (n + 1) buckets)
+
+bucketSort :: [Int] -> [Int]
+bucketSort [] = []
+bucketSort [x] = [x]
+bucketSort l1 =
+  let k = length l1
+      m = foldr1 (max) l1
+      buckets = [[] | _ <- [1 .. k]]
+      newBuckets = foldr (\x -> sortIntoBuckets x k m 1) buckets l1
+      sortedBuckets = map (mergeSort) newBuckets
+      finalList = foldr1 (++) sortedBuckets
+   in finalList
