@@ -70,6 +70,8 @@ segundosDecorridos (PM horas minutos) = (12 + horas)*60*60 + minutos*60
 
 -- 8
 
+
+
 -- 9
 data ArvBinInt
   = Nulo
