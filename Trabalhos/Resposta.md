@@ -39,3 +39,4 @@ Ao analizar a tabela percebe-se que o bolha3Cont é o mais eficiente, essa afirm
 |   x6   |      84       |      196      |
 |   x7   |      81       |      180      |
 
+A questão 2 é superior, essa afirmação pode ser confirmada ao calcular a media dos elementos na tabela
